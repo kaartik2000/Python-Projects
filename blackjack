@@ -1,0 +1,261 @@
+# Class to create deck
+class CreateDeck():
+    '''
+    Must call create_deck method to
+    '''
+    
+    spades = []
+    hearts = []
+    clovers = []
+    diamonds = []
+    deck = []
+    
+    def create_deck(self):
+        CreateDeck.spades = []
+        CreateDeck.hearts = []
+        CreateDeck.clovers = []
+        CreateDeck.diamonds = []
+        
+        for item in ["2","3","4","5","6","7","8","9","10", "Jack", "Queen", "King", "Ace"]:
+            
+            CreateDeck.spades.append ("Spade " + item)
+            CreateDeck.hearts.append ("Hearts " + item)
+            CreateDeck.clovers.append ("Clovers " + item)
+            CreateDeck.diamonds.append ("Diamonds " + item)
+        
+        CreateDeck.deck = CreateDeck.spades + CreateDeck.hearts + CreateDeck.clovers + CreateDeck.diamonds
+        import random
+        random.shuffle(CreateDeck.deck)
+        return CreateDeck.deck
+
+def hand_value(hand):
+    '''
+    Insert a list as the argument
+    '''
+    hand_total = 0
+    ace_count = 0
+    
+    for card in hand:
+        if "2" in card:
+            hand_total += 2
+        elif "3" in card:
+            hand_total += 3
+        elif "4" in card:
+            hand_total += 4
+        elif "5" in card:
+            hand_total += 5
+        elif "6" in card:
+            hand_total += 6
+        elif "7" in card:
+            hand_total += 7
+        elif "8" in card:
+            hand_total += 8
+        elif "9" in card:
+            hand_total += 9
+        elif "10" in card:
+            hand_total += 10
+        elif "Jack" in card:
+            hand_total += 10
+        elif "Queen" in card:
+            hand_total += 10
+        elif "King" in card:
+            hand_total += 10
+        elif "Ace" in card:
+            ace_count +=1
+            hand_total += 11
+    
+    if (ace_count > 0) and (hand_total > 21):
+        if ace_count == 1:
+            return (hand_total - 10)
+        else:
+            return (hand_total - (10 * (ace_count - 1)))
+    else:
+        return hand_total
+        
+class Player1():
+    
+    wins = 0
+    loses = 0
+    busts = 0
+    
+    def __init__(self, name, balance, bet=0):
+        self.name = name
+        self.balance = balance
+        self.bet = bet
+        print(f"\nWelcome, {self.name}")
+        print(f"Your Available Balance is ${self.balance}")
+        
+    def bet_amount(self, amount):
+        self.bet = amount
+        
+    def win(self):
+        self.balance = self.balance + self.bet
+        Player1.wins +=1
+        
+    def lose(self):
+        self.balance = self.balance - self.bet
+        Player1.loses += 1
+    
+    def bust(self):
+        self.balance = self.balance - self.bet
+        Player1.busts += 1
+        
+def deal_cards(deck):
+    '''
+    Works for both dealer and player
+    '''
+    hand_list = []
+    
+    i = 0
+    while i<2:
+        hand_list.append(deck.pop(i))
+        i+=1
+    return hand_list
+    
+def draw_card(current_hand, deck):
+    current_hand.append(deck.pop(0))
+    return current_hand
+
+def blackjack():
+    
+    #Create the deck
+    playing_deck = CreateDeck().create_deck()
+    
+    while True:
+        #Ask user if they are ready to play the game
+        ready_play = input("Are you ready to play? 'Yes/No' ")
+        if ready_play.lower() != "yes" and ready_play.lower() != "no":
+            print("Invalid Answer!")
+            continue
+
+        if ready_play.lower() == "no":
+            break
+        else:
+            #Once Ready, begin:
+            player_name = input("What is your name? ")
+
+            while True:
+                try:
+                    player_balance = int(input("How much money did you bring? "))
+                except:
+                    Print("That is not a number! ")
+                    continue
+                else: 
+                    break
+            
+            #Created a class with player's name and balance for betting.
+            player_profile = Player1(player_name, player_balance)
+            break
+            
+    Play=True    
+    while Play:
+        
+            from IPython.display import clear_output
+            clear_output()
+            #Manipulating Values in Player1 class for bet attribute
+            while True:
+                try:
+                    amt = int(input("How much would you like to bet? "))
+                except:
+                    print("That is not a number! Retry")
+                    continue
+                else:
+                    
+                    if (amt > player_profile.balance):
+                        print("You dont have enough money! \nSo once again, ")
+                        continue
+                    else:
+                        player_profile.bet_amount(amt)
+                        print(f"You are betting: {player_profile.bet}")
+                        break
+                    
+            #Creating Player & Dealer Hands.
+            
+            player_hand = deal_cards(playing_deck)
+            dealer_hand = deal_cards(playing_deck)
+            
+            #Storing Value for player and dealers hands
+            player_hand_total = hand_value(player_hand)
+            dealer_hand_total = hand_value(dealer_hand)
+            
+            #Enacting Gameplay Like at Real Casino
+            print(f"The 2 cards dealt to {player_profile.name} are {player_hand[0]} and {player_hand[1]}, totalling {player_hand_total}")
+            print(f"The dealer was dealt 2 cards. One will remain closed, and the other card is {dealer_hand[1]}")
+            
+            #Time to Start Playing
+            while True:
+                    draw_or_not = input("Do you want to draw? 'Yes/No' ")
+                    
+                    if draw_or_not.lower() == "yes" or draw_or_not.lower() == "no":
+                    #Player Gets a really good hand first shot/ player done drawing.
+                        if draw_or_not.lower() == "no":
+                            break
+
+                        if draw_or_not.lower() == "yes":
+                            draw_card(player_hand, playing_deck)
+                            player_hand_total = hand_value(player_hand)
+                            print(f"Your current hand is {player_hand} and the total is {player_hand_total}")
+
+                            if player_hand_total > 21:
+                                print("The total is greater than 21, and you've bust. You lose your money! ")
+                                player_profile.bust()
+                                break
+                            else:
+                                continue
+                    else:
+                        print("Please answer properly!")
+                        continue
+                        
+            if player_hand_total <22:            
+                print(f"Your final hand is {player_hand}")
+                print(f"Alright, your hand totals to {player_hand_total}")
+                print("Let's see if the dealer can beat that! ")
+                print(f"The dealer opens his covered card. His 2 cards are {dealer_hand[1]} and {dealer_hand[0]}")
+                print(f"The dealer's total {dealer_hand_total}")
+
+                while True:
+                    if dealer_hand_total < player_hand_total:
+                        draw_card(dealer_hand, playing_deck)
+                        dealer_hand_total = hand_value(dealer_hand)
+                        print(f"The dealer's current hand is {dealer_hand} and the total is {dealer_hand_total}")
+
+                        if dealer_hand_total > 21:
+                            print(f"The dealer has just gone bust! You win ${player_profile.bet}")
+                            player_profile.win()
+                            break
+
+                        if dealer_hand_total > player_hand_total:
+                            print(f"The Dealer stops drawing because he has already beat the player's hand. {player_profile.name} loses {player_profile.bet}!")
+                            player_profile.lose()
+                            break
+
+                        if (dealer_hand_total == player_hand_total) and (dealer_hand_total > 17):
+                            print("You are both tied at 21! Neither of you win.")
+                            break
+
+                    elif dealer_hand_total > player_hand_total:
+                        print("The dealer doesn't draw because his total already beat the player.")
+                        player_profile.lose()
+                        break
+
+                    elif (dealer_hand_total == player_hand_total) and (dealer_hand_total > 17):
+                        print(f"You are both tied at {dealer_hand_total}! Neither of you win.")
+                        break
+                
+            print(f"Current Statistics for {player_profile.name}:")
+            print(f"Balance: {player_profile.balance}")
+            print(f"Wins: {player_profile.wins}")
+            print(f"Losses: {player_profile.loses}")
+            print(f"Busts: {player_profile.busts}")
+            
+            
+            
+            play_again = input("Do you want to play again? 'Yes' or 'No'")
+                
+            if play_again.lower() == "yes":
+                continue
+            else:
+                Play = False
+
+
+#Call blackjack() to play
